@@ -5,7 +5,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 vim.o.colorcolumn = '80'
 vim.o.tabstop = 4
@@ -18,7 +18,7 @@ vim.o.tabstop = 4
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
-vim.opt.relativenumber = true
+-- vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -242,17 +242,6 @@ require('lazy').setup({
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
-      -- Telescope is a fuzzy finder that comes with a lot of different things that
-      -- it can fuzzy find! It's more than just a "file finder", it can search
-      -- many different aspects of Neovim, your workspace, LSP, and more!
-      --
-      -- The easiest way to use Telescope, is to start by doing something like:
-      --  :Telescope help_tags
-      --
-      -- After running this command, a window will open up and you're able to
-      -- type in the prompt window. You'll see a list of `help_tags` options and
-      -- a corresponding preview of the help.
-      --
       -- Two important keymaps to use while in Telescope are:
       --  - Insert mode: <c-/>
       --  - Normal mode: ?
@@ -467,7 +456,6 @@ require('lazy').setup({
       --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
-
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
       --
@@ -478,17 +466,18 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
+        -- clangd = {}
+        ast_grep = {},
+        gopls = {},
+        pyright = {},
+        rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`tsserver`) will work just fine
-        -- tsserver = {},
+        tsserver = {},
         --
 
         lua_ls = {
@@ -699,7 +688,7 @@ require('lazy').setup({
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
       vim.cmd.colorscheme 'tokyonight-night'
-
+      -- vim.keymap.set(, lhs, rhs, opts?)
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
     end,
@@ -792,13 +781,44 @@ require('lazy').setup({
   require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  {
+    'ThePrimeagen/refactoring.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    config = function()
+      require('refactoring').setup()
+      vim.keymap.set('x', '<leader>re', ':Refactor extract ')
+      vim.keymap.set('x', '<leader>rf', ':Refactor extract_to_file ')
+      vim.keymap.set('x', '<leader>rv', ':Refactor extract_var ')
+      vim.keymap.set({ 'n', 'x' }, '<leader>ri', ':Refactor inline_var')
+      vim.keymap.set('n', '<leader>rI', ':Refactor inline_func')
+      vim.keymap.set('n', '<leader>rb', ':Refactor extract_block')
+      vim.keymap.set('n', '<leader>rbf', ':Refactor extract_block_to_file')
 
+      -- You can also use below = true here to to change the position of the printf
+      -- statement (or set two remaps for either one). This remap must be made in normal mode.
+      vim.keymap.set('n', '<leader>rp', function()
+        require('refactoring').debug.printf { below = false }
+      end)
+      -- Print var
+      vim.keymap.set({ 'x', 'n' }, '<leader>rv', function()
+        require('refactoring').debug.print_var()
+      end)
+      -- Supports both visual and normal mode
+      vim.keymap.set('n', '<leader>rc', function()
+        require('refactoring').debug.cleanup {}
+      end)
+      -- Supports only normal mode
+    end,
+  },
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -823,7 +843,11 @@ require('lazy').setup({
 
 vim.keymap.set('n', '<c-d>', '<c-d>zz')
 vim.keymap.set('n', '<c-u>', '<c-u>zz')
-vim.keymap.set('n', '<leader>xx', vim.cmd.bd, { desc = 'delete the current buffer' })
+vim.keymap.set('n', '<leader>bd', vim.cmd.bd, { desc = 'delete the current buffer' })
+vim.keymap.set('n', '<leader>bn', vim.cmd.bn, { desc = 'delete next buffer' })
+vim.keymap.set('n', '<leader>bp', vim.cmd.bp, { desc = 'delete previous buffer' })
+vim.keymap.set('n', '<leader>bw', vim.cmd.w, { desc = 'write current buffer' })
+
 vim.keymap.set('n', '<leader>pe', vim.cmd.Ex, { desc = 'opens [E]xplorer' })
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
