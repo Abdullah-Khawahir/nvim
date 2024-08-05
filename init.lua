@@ -197,6 +197,9 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
     },
+      -- Text object
+      map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+    end,
   },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
