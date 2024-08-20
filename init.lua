@@ -803,6 +803,32 @@ require('lazy').setup({
     end,
     requires = { 'nvim-tree/nvim-web-devicons' },
   },
+  {
+    'jackMort/ChatGPT.nvim',
+    event = 'VeryLazy',
+    config = function()
+      local chatgpt = require 'chatgpt'
+      chatgpt.setup {
+        edit_with_instructions = {
+          diff = true,
+        },
+        openai_params = {
+          model = 'gpt-4o',
+          frequency_penalty = 0,
+          presence_penalty = 0,
+          max_tokens = 4095,
+          temperature = 0.2,
+          top_p = 0.1,
+          n = 1,
+        },
+      }
+    end,
+    dependencies = {
+      'MunifTanjim/nui.nvim',
+      'nvim-lua/plenary.nvim',
+      'folke/trouble.nvim',
+      'nvim-telescope/telescope.nvim',
+    },
 }, {
   ui = {
     -- if you are using a nerd font: set icons to an empty table which will use the
