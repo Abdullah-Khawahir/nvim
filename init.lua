@@ -232,6 +232,7 @@ require('lazy').setup({
 <<<<<<< HEAD
 =======
         { '<leader>o', group = '[O]pen' },
+<<<<<<< HEAD
         -- ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
         -- ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
         -- ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
@@ -247,6 +248,8 @@ require('lazy').setup({
         -- { '<leader>t_', hidden = true },
         -- { '<leader>w_', hidden = true },
 >>>>>>> b141773 (updated)
+=======
+>>>>>>> 48a2674 (added status telescope binding)
       }
       -- visual mode
       require('which-key').add({
@@ -304,6 +307,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>sc', builtin.git_status, { desc = 'Git [C]hanged' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -422,6 +426,10 @@ require('lazy').setup({
               end,
             })
           end
+
+          map('<leader>td', function()
+            vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+          end, '[T]oggle [D]iagnostic')
           -- The following autocommand is used to enable inlay hints in your
           -- code, if the language server you are using supports them
           --
@@ -431,9 +439,6 @@ require('lazy').setup({
               vim.lsp.inlay_hint.enable(false)
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
             end, '[T]oggle Inlay [H]ints')
-            map('<leader>td', function()
-              vim.diagnostic.enable(not vim.diagnostic.is_enabled())
-            end, '[T]oggle [D]iagnostic')
           end
         end,
       })
@@ -813,7 +818,7 @@ require('lazy').setup({
       'nvim-treesitter/nvim-treesitter',
     },
     config = function()
-      require('refactoring').setup()
+      require('refactoring').setup({})
       vim.keymap.set('x', '<leader>re', ':Refactor extract ')
       vim.keymap.set('x', '<leader>rf', ':Refactor extract_to_file ')
       vim.keymap.set('x', '<leader>rv', ':Refactor extract_var ')
@@ -829,7 +834,7 @@ require('lazy').setup({
       end)
       -- Print var
       vim.keymap.set({ 'x', 'n' }, '<leader>rv', function()
-        require('refactoring').debug.print_var()
+        require('refactoring').debug.print_var({ code_generation })
       end)
       -- Supports both visual and normal mode
       vim.keymap.set('n', '<leader>rc', function()
@@ -838,7 +843,9 @@ require('lazy').setup({
       -- Supports only normal mode
     end,
   },
-  { 'tpope/vim-fugitive' },
+  {
+    'tpope/vim-fugitive',
+  },
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
