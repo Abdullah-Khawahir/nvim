@@ -229,27 +229,7 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>w', group = '[W]orkspace' },
-<<<<<<< HEAD
-=======
         { '<leader>o', group = '[O]pen' },
-<<<<<<< HEAD
-        -- ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        -- ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-        -- ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-        -- ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-        -- ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
-        -- ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
-        -- ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
-        -- { '<leader>c_', hidden = true },
-        -- { '<leader>d_', hidden = true },
-        -- { '<leader>h_', hidden = true },
-        -- { '<leader>r_', hidden = true },
-        -- { '<leader>s_', hidden = true },
-        -- { '<leader>t_', hidden = true },
-        -- { '<leader>w_', hidden = true },
->>>>>>> b141773 (updated)
-=======
->>>>>>> 48a2674 (added status telescope binding)
       }
       -- visual mode
       require('which-key').add({
@@ -692,40 +672,38 @@ require('lazy').setup({
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
-<<<<<<< HEAD
-  -- { -- Highlight, edit, and navigate code
-  --   'nvim-treesitter/nvim-treesitter',
-  --   build = ':TSUpdate',
-  --   opts = {
-  --     ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
-  --     -- Autoinstall languages that are not installed
-  --     auto_install = true,
-  --     highlight = {
-  --       enable = true,
-  --       -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-  --       --  If you are experiencing weird indenting issues, add the language to
-  --       --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-  --       additional_vim_regex_highlighting = { 'ruby' },
-  --     },
-  --     indent = { enable = true, disable = { 'ruby' } },
-  --   },
-  --   config = function(_, opts)
-  --     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-  --
-  --     -- Prefer git instead of curl in order to improve connectivity in some environments
-  --     require('nvim-treesitter.install').prefer_git = true
-  --     ---@diagnostic disable-next-line: missing-fields
-  --     require('nvim-treesitter.configs').setup(opts)
-  --
-  --     -- There are additional nvim-treesitter modules that you can use to interact
-  --     -- with nvim-treesitter. You should go explore a few and see what interests you:
-  --     --
-  --     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-  --     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-  --     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
-  --   end,
-  -- },
-=======
+ { -- Highlight, edit, and navigate code
+   'nvim-treesitter/nvim-treesitter',
+   build = ':TSUpdate',
+   opts = {
+     ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
+     -- Autoinstall languages that are not installed
+     auto_install = true,
+     highlight = {
+       enable = true,
+       -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
+       --  If you are experiencing weird indenting issues, add the language to
+       --  the list of additional_vim_regex_highlighting and disabled languages for indent.
+       additional_vim_regex_highlighting = { 'ruby' },
+     },
+     indent = { enable = true, disable = { 'ruby' } },
+   },
+   config = function(_, opts)
+     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+
+     -- Prefer git instead of curl in order to improve connectivity in some environments
+     require('nvim-treesitter.install').prefer_git = true
+     ---@diagnostic disable-next-line: missing-fields
+     require('nvim-treesitter.configs').setup(opts)
+
+     -- There are additional nvim-treesitter modules that you can use to interact
+     -- with nvim-treesitter. You should go explore a few and see what interests you:
+     --
+     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
+     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
+     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+   end,
+ },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
@@ -795,7 +773,6 @@ require('lazy').setup({
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
   },
->>>>>>> b141773 (updated)
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
@@ -870,7 +847,6 @@ require('lazy').setup({
     requires = { 'nvim-tree/nvim-web-devicons' },
   },
   {
-<<<<<<< HEAD
     'jackMort/ChatGPT.nvim',
     event = 'VeryLazy',
     config = function()
@@ -893,14 +869,12 @@ require('lazy').setup({
       'folke/trouble.nvim',
       'nvim-telescope/telescope.nvim',
     },
-=======
     'voldikss/vim-floaterm',
     config = function()
       vim.keymap.set('n', '<leader>og', ':FloatermNew --width=0.95 --height=0.95 lazygit <CR>', { desc = '[G]it' })
 
       vim.keymap.set('n', '<leader>ot', ':FloatermNew --width=0.95 --height=0.95  <CR>', { desc = '[T]ermianl' })
     end,
->>>>>>> b141773 (updated)
   },
 }, {
   ui = {
