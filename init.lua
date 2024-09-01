@@ -2,7 +2,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 -- vim.o.path = vim.o.path .. '**'
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = not true
+vim.g.have_nerd_font = true
 vim.o.wrap = false
 vim.o.colorcolumn = '80'
 vim.o.tabstop = 4
@@ -140,6 +140,7 @@ function ARABIC_TOGGLE()
 end
 
 vim.keymap.set('n', '<leader>ta', ':lua ARABIC_TOGGLE()<CR>', { desc = '[A]rabic Toggle' })
+vim.keymap.set('n', '<leader>tr', ':set wrap!<CR>', { desc = '[W]rap Toggle' })
 
 --#region
 vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv")
@@ -672,38 +673,38 @@ require('lazy').setup({
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
- { -- Highlight, edit, and navigate code
-   'nvim-treesitter/nvim-treesitter',
-   build = ':TSUpdate',
-   opts = {
-     ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
-     -- Autoinstall languages that are not installed
-     auto_install = true,
-     highlight = {
-       enable = true,
-       -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-       --  If you are experiencing weird indenting issues, add the language to
-       --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-       additional_vim_regex_highlighting = { 'ruby' },
-     },
-     indent = { enable = true, disable = { 'ruby' } },
-   },
-   config = function(_, opts)
-     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+  { -- Highlight, edit, and navigate code
+    'nvim-treesitter/nvim-treesitter',
+    build = ':TSUpdate',
+    opts = {
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
+      -- Autoinstall languages that are not installed
+      auto_install = false,
+      highlight = {
+        enable = true,
+        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
+        --  If you are experiencing weird indenting issues, add the language to
+        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
+        additional_vim_regex_highlighting = { 'ruby' },
+      },
+      indent = { enable = true, disable = { 'ruby' } },
+    },
+    config = function(_, opts)
+      -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
 
-     -- Prefer git instead of curl in order to improve connectivity in some environments
-     require('nvim-treesitter.install').prefer_git = true
-     ---@diagnostic disable-next-line: missing-fields
-     require('nvim-treesitter.configs').setup(opts)
+      -- Prefer git instead of curl in order to improve connectivity in some environments
+      require('nvim-treesitter.install').prefer_git = true
+      ---@diagnostic disable-next-line: missing-fields
+      require('nvim-treesitter.configs').setup(opts)
 
-     -- There are additional nvim-treesitter modules that you can use to interact
-     -- with nvim-treesitter. You should go explore a few and see what interests you:
-     --
-     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
-   end,
- },
+      -- There are additional nvim-treesitter modules that you can use to interact
+      -- with nvim-treesitter. You should go explore a few and see what interests you:
+      --
+      --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
+      --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
+      --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+    end,
+  },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
@@ -847,35 +848,26 @@ require('lazy').setup({
     requires = { 'nvim-tree/nvim-web-devicons' },
   },
   {
-    'jackMort/ChatGPT.nvim',
-    event = 'VeryLazy',
+    "jackMort/ChatGPT.nvim",
+    event = "VeryLazy",
     config = function()
-      local chatgpt = require 'chatgpt'
-      chatgpt.setup {
-        openai_params = {
-          model = 'gpt-4o',
-          frequency_penalty = 0,
-          presence_penalty = 0,
-          max_tokens = 4095,
-          temperature = 0.2,
-          top_p = 0.1,
-          n = 1,
-        },
-      }
+      require("chatgpt").setup()
     end,
     dependencies = {
-      'MunifTanjim/nui.nvim',
-      'nvim-lua/plenary.nvim',
-      'folke/trouble.nvim',
-      'nvim-telescope/telescope.nvim',
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "folke/trouble.nvim",
+      "nvim-telescope/telescope.nvim"
     },
+  },
+  {
     'voldikss/vim-floaterm',
     config = function()
       vim.keymap.set('n', '<leader>og', ':FloatermNew --width=0.95 --height=0.95 lazygit <CR>', { desc = '[G]it' })
-
       vim.keymap.set('n', '<leader>ot', ':FloatermNew --width=0.95 --height=0.95  <CR>', { desc = '[T]ermianl' })
     end,
   },
+
 }, {
   ui = {
     -- if you are using a nerd font: set icons to an empty table which will use the
