@@ -322,7 +322,7 @@ require('lazy').setup({
       { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
-
+      'Hoffs/omnisharp-extended-lsp.nvim',
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
       { 'j-hui/fidget.nvim',       opts = {} },
@@ -340,15 +340,6 @@ require('lazy').setup({
             vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client ~= nil and client.name == "tsserver" then
-            map('<leader>i', function()
-              vim.lsp.buf.execute_command({
-                command = "_typescript.organizeImports",
-                arguments = { vim.api.nvim_buf_get_name(0) },
-                title = ""
-              })
-            end, 'Organize [I]mports')
-          end
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
           map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
@@ -370,7 +361,7 @@ require('lazy').setup({
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
           map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
-
+          vim.keymap.set('v', '<leader>ca', vim.lsp.buf.code_action, { desc = '[C]ode [A]ction' })
           -- Opens a popup that displays documentation about the word under your cursor
           --  See `:help K` for why this keymap.
           map('K', vim.lsp.buf.hover, 'Hover Documentation')
@@ -384,7 +375,27 @@ require('lazy').setup({
           --    See `:help CursorHold` for information about when this is executed
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
-          local client = vim.lsp.get_client_by_id(event.data.client_id)
+          --
+          --
+          if client ~= nil and (client.name == "csharp_ls" or client.name == "omnisharp") then
+            map('gd', function() require('omnisharp_extended').telescope_lsp_definition() end,
+              '[G]oto [D]efinition+')
+            map('gD', require('omnisharp_extended').telescope_lsp_type_definition, '[G]oto [D]efinition+')
+            map('gr', require('omnisharp_extended').telescope_lsp_references, '[G]oto [R]eferences+')
+            map('gI', require('omnisharp_extended').telescope_lsp_implementation, '[G]oto [I]mplementation+')
+          end
+
+
+          if client ~= nil and client.name == "tsserver" then
+            map('<leader>i', function()
+              vim.lsp.buf.execute_command({
+                command = "_typescript.organizeImports",
+                arguments = { vim.api.nvim_buf_get_name(0) },
+                title = ""
+              })
+            end, 'Organize [I]mports')
+          end
+
           if client and client.server_capabilities.documentHighlightProvider then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -544,51 +555,46 @@ require('lazy').setup({
       luasnip.config.setup {}
 
       cmp.setup {
-        snippet = {
-          expand = function(args)
-            luasnip.lsp_expand(args.body)
-          end,
+        view = {
+          docs = {
+            auto_open = true,
+          },
+        },
+        window = {
+          completion = cmp.config.window.bordered(),
+          documentation = cmp.config.window.bordered(),
         },
         completion = { completeopt = 'menu,menuone,noselect' },
-
-        -- For an understanding of why these mappings were
-        -- chosen, you will need to read `:help ins-completion`
-        --
-        -- No, but seriously. Please read `:help ins-completion`, it is really good!
         mapping = cmp.mapping.preset.insert {
-          -- Select the [n]ext item
           ['<C-n>'] = cmp.mapping.select_next_item(),
-          -- Select the [p]revious item
           ['<C-p>'] = cmp.mapping.select_prev_item(),
-
-          -- Scroll the documentation window [b]ack / [f]orward
-          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-          ['<C-f>'] = cmp.mapping.scroll_docs(4),
-
-          -- Accept ([y]es) the completion.
-          --  This will auto-import if your LSP supports it.
-          --  This will expand snippets if the LSP sent a snippet.
+          ['<C-b>'] = function()
+            if cmp.visible_docs() then
+              cmp.scroll_docs(-4)
+            else
+              cmp.open_docs()
+            end
+          end,
+          ['<C-f>'] = function()
+            if cmp.visible_docs() then
+              cmp.scroll_docs(4)
+            else
+              cmp.open_docs()
+            end
+          end,
           ['<C-y>'] = cmp.mapping.confirm { select = true },
-
-          -- If you prefer more traditional completion keymaps,
-          -- you can uncomment the following lines
           ['<CR>'] = cmp.mapping.confirm {},
           ['<Tab>'] = cmp.mapping.select_next_item(),
           ['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
-          -- Manually trigger a completion from nvim-cmp.
-          --  Generally you don't need this, because nvim-cmp will display
-          --  completions whenever it has completion options available.
-          ['<C-Space>'] = cmp.mapping.complete {},
-
-          -- Think of <c-l> as moving to the right of your snippet expansion.
-          --  So if you have a snippet that's like:
-          --  function $name($args)
-          --    $body
-          --  end
-          --
-          -- <c-l> will move you to the right of each of the expansion locations.
-          -- <c-h> is similar, except moving you backwards.
+          ['<C-Space>'] = function()
+            if not cmp.visible() then
+              cmp.complete()
+            else
+              cmp.close()
+              cmp.close_docs()
+            end
+          end,
           ['<C-l>'] = cmp.mapping(function()
             if luasnip.expand_or_locally_jumpable() then
               luasnip.expand_or_jump()
@@ -599,14 +605,16 @@ require('lazy').setup({
               luasnip.jump(-1)
             end
           end, { 'i', 's' }),
-
-          -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
-          --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
         },
         sources = {
           { name = 'nvim_lsp' },
-          { name = 'luasnip' },
+          -- { name = 'luasnip' },
           { name = 'path' },
+        },
+        snippet = {
+          expand = function(args)
+            luasnip.lsp_expand(args.body)
+          end,
         },
       }
     end,
@@ -680,38 +688,6 @@ require('lazy').setup({
       ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = false,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
-    config = function(_, opts)
-      -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-
-      -- Prefer git instead of curl in order to improve connectivity in some environments
-      require('nvim-treesitter.install').prefer_git = true
-      ---@diagnostic disable-next-line: missing-fields
-      require('nvim-treesitter.configs').setup(opts)
-
-      -- There are additional nvim-treesitter modules that you can use to interact
-      -- with nvim-treesitter. You should go explore a few and see what interests you:
-      --
-      --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-      --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-      --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
-    end,
-  },
-  { -- Highlight, edit, and navigate code
-    'nvim-treesitter/nvim-treesitter',
-    build = ':TSUpdate',
-    opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
       highlight = {
         enable = true,
         additional_vim_regex_highlighting = { 'ruby' },
@@ -796,29 +772,39 @@ require('lazy').setup({
       'nvim-treesitter/nvim-treesitter',
     },
     config = function()
-      require('refactoring').setup({})
-      vim.keymap.set('x', '<leader>re', ':Refactor extract ')
-      vim.keymap.set('x', '<leader>rf', ':Refactor extract_to_file ')
-      vim.keymap.set('x', '<leader>rv', ':Refactor extract_var ')
-      vim.keymap.set({ 'n', 'x' }, '<leader>ri', ':Refactor inline_var')
-      vim.keymap.set('n', '<leader>rI', ':Refactor inline_func')
-      vim.keymap.set('n', '<leader>rb', ':Refactor extract_block')
-      vim.keymap.set('n', '<leader>rbf', ':Refactor extract_block_to_file')
+      require('refactoring').setup({
+      })
 
-      -- You can also use below = true here to to change the position of the printf
-      -- statement (or set two remaps for either one). This remap must be made in normal mode.
+      require("telescope").load_extension("refactoring")
+      vim.keymap.set(
+        { "n", "x" },
+        "<leader>rr",
+        function() require('telescope').extensions.refactoring.refactors() end,
+        { desc = "[R]efactors" }
+      )
+      -- vim.keymap.set('x', '<leader>re', ':Refactor extract ')
+      -- vim.keymap.set('x', '<leader>rf', ':Refactor extract_to_file ')
+      -- vim.keymap.set('x', '<leader>rv', ':Refactor extract_var ')
+      -- vim.keymap.set({ 'n', 'x' }, '<leader>ri', ':Refactor inline_var')
+      -- vim.keymap.set('n', '<leader>rI', ':Refactor inline_func')
+      -- vim.keymap.set('n', '<leader>rb', ':Refactor extract_block')
+      -- vim.keymap.set({ 'n', 'x' }, '<leader>rbf', ':Refactor extract_block_to_file')
+
       vim.keymap.set('n', '<leader>rp', function()
         require('refactoring').debug.printf { below = false }
       end)
+
       -- Print var
       vim.keymap.set({ 'x', 'n' }, '<leader>rv', function()
-        require('refactoring').debug.print_var({ code_generation })
+        require('refactoring').debug.print_var({
+
+        })
       end)
+
       -- Supports both visual and normal mode
       vim.keymap.set('n', '<leader>rc', function()
         require('refactoring').debug.cleanup {}
       end)
-      -- Supports only normal mode
     end,
   },
   {
