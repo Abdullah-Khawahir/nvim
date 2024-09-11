@@ -71,6 +71,11 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+vim.keymap.set('n', '<C-left>', '<C-w>>', { desc = 'resize left' })
+vim.keymap.set('n', '<C-right>', '<C-w><', { desc = 'resize right' })
+vim.keymap.set('n', '<C-down>', '<C-w>-', { desc = 'resize down' })
+vim.keymap.set('n', '<C-up>', '<C-w>+', { desc = 'resize up' })
+
 vim.keymap.set('n', '<c-d>', '<c-d>zz')
 vim.keymap.set('n', '<c-u>', '<c-u>zz')
 
@@ -85,6 +90,24 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank()
   end,
 })
+
+vim.api.nvim_create_autocmd('TermOpen', {
+  desc = "preferences on terminal mode",
+  callback = function()
+    vim.opt_local.number = false
+    vim.opt_local.signcolumn = 'no'
+  end
+})
+vim.keymap.set({ 'n', 't' }, '<C-`>', function()
+  local mode = vim.api.nvim_get_mode()["mode"]
+  if mode == 't' then
+    vim.cmd("bd!")
+  else
+    vim.cmd("term")
+    vim.cmd("startinsert")
+  end
+end, { desc = "Toggle Terminal" })
+
 IS_ARABIC = false
 function ARABIC_TOGGLE()
   if not IS_ARABIC then
@@ -188,6 +211,7 @@ require('lazy').setup({
           },
         },
         defaults = {
+          path_display = { "smart" },
           file_ignore_patterns = {
             'node_modules',
             '%.png',
@@ -202,10 +226,18 @@ require('lazy').setup({
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>sf', function()
+          builtin.find_files { path_display = { "smart" } }
+        end,
+        { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-      vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      vim.keymap.set('n', '<leader>sw', function()
+          builtin.grep_string { opts = { path_display = { "smart" } } }
+        end,
+        { desc = '[S]earch current [W]ord' })
+      vim.keymap.set('n', '<leader>sg', function()
+        builtin.live_grep { opts = { path_display = { "smart" } } }
+      end, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
@@ -538,38 +570,6 @@ require('lazy').setup({
       highlight = {
         enable = true,
         additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-      textobjects = {
-        move = {
-          enable = true,
-          set_jumps = true,
-          goto_next_start = {
-            [']m'] = '@function.outer',
-            [']]'] = { query = '@class.outer', desc = 'Next class start' },
-            [']o'] = '@loop.*',
-            [']s'] = { query = '@scope', query_group = 'locals', desc = 'Next scope' },
-            [']z'] = { query = '@fold', query_group = 'folds', desc = 'Next fold' },
-          },
-          goto_next_end = {
-            [']M'] = '@function.outer',
-            [']['] = '@class.outer',
-          },
-          goto_previous_start = {
-            ['[m'] = '@function.outer',
-            ['[['] = '@class.outer',
-          },
-          goto_previous_end = {
-            ['[M'] = '@function.outer',
-            ['[]'] = '@class.outer',
-          },
-          goto_next = {
-            [']d'] = '@conditional.outer',
-          },
-          goto_previous = {
-            ['[d'] = '@conditional.outer',
-          },
-        },
       },
     },
     config = function(_, opts)
