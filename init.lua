@@ -100,7 +100,9 @@ vim.api.nvim_create_autocmd('TermOpen', {
 })
 vim.keymap.set({ 'n', 't' }, '<C-`>', function()
   local mode = vim.api.nvim_get_mode()["mode"]
-  if mode == 't' then
+  local bufnr = vim.api.nvim_get_current_buf()
+  local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
+  if buftype == 'terminal' or mode == 't' then
     vim.cmd("bd!")
   else
     vim.cmd("term")
