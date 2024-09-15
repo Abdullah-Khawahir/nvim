@@ -7,6 +7,7 @@ vim.o.tabstop = 4
 vim.opt.number = true
 vim.opt.mouse = 'a'
 
+vim.opt.termguicolors = true
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
 
@@ -520,6 +521,9 @@ require('lazy').setup({
             luasnip.lsp_expand(args.body)
           end,
         },
+        formatting = {
+          format = require("nvim-highlight-colors").format
+        },
       }
     end,
   },
@@ -665,7 +669,20 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>ot', ':FloatermNew --width=0.95 --height=0.95  <CR>', { desc = '[T]ermianl' })
     end,
   },
-
+  {
+    'brenoprata10/nvim-highlight-colors',
+    opts = {
+    },
+    config = function()
+      require("nvim-highlight-colors").setup {
+        render = 'virtual',
+        virtual_symbol_position = 'eol',
+        virtual_symbol = '🌑',
+        virtual_symbol_prefix = ' ',
+      }
+      vim.keymap.set('n', '<leader>tc', require("nvim-highlight-colors").toggle, { desc = "toggle highlight color" })
+    end
+  },
   { import = 'custom.plugins' },
 }, {
   ui = {
