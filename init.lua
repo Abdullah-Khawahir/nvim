@@ -99,15 +99,21 @@ vim.api.nvim_create_autocmd('TermOpen', {
     vim.opt_local.signcolumn = 'no'
   end
 })
+local ACTIVE_TERM = nil;
 vim.keymap.set({ 'n', 't' }, '<C-`>', function()
-  local mode = vim.api.nvim_get_mode()["mode"]
   local bufnr = vim.api.nvim_get_current_buf()
-  local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
-  if buftype == 'terminal' or mode == 't' then
-    vim.cmd("bd!")
+  if bufnr == ACTIVE_TERM then
+    vim.cmd("clo")
   else
-    vim.cmd("term")
-    vim.cmd("startinsert")
+    if ACTIVE_TERM == nil or not vim.api.nvim_buf_is_valid(ACTIVE_TERM) then
+      vim.cmd("vsplit | term")
+      vim.cmd("wincmd 20<")
+      ACTIVE_TERM = vim.api.nvim_get_current_buf()
+    else
+      vim.cmd("vsplit")
+      vim.cmd("wincmd 20<")
+      vim.api.nvim_set_current_buf(ACTIVE_TERM)
+    end
   end
 end, { desc = "Toggle Terminal" })
 
@@ -140,8 +146,15 @@ if not vim.loop.fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
--- NOTE: Here is where you install your plugins.
 require('lazy').setup({
+  {
+    'folke/tokyonight.nvim',
+    priority = 1000, -- Make sure to load this before all the other start plugins.
+    init = function()
+      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.hi 'Comment gui=none'
+    end,
+  },
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
@@ -527,16 +540,6 @@ require('lazy').setup({
       }
     end,
   },
-
-  {
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      vim.cmd.colorscheme 'tokyonight-night'
-      vim.cmd.hi 'Comment gui=none'
-    end,
-  },
-
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
@@ -682,6 +685,24 @@ require('lazy').setup({
       }
       vim.keymap.set('n', '<leader>tc', require("nvim-highlight-colors").toggle, { desc = "toggle highlight color" })
     end
+  },
+  {
+    "oysandvik94/curl.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    config = function()
+      local curl = require("curl")
+      curl.setup({})
+      local function map(key, func, desc)
+        vim.keymap.set("n", "<leader>u" .. key, func, { desc = desc })
+      end
+      map("c", curl.open_curl_tab, "Open a curl tab scoped to the current working directory")
+      map("o", curl.open_global_tab, "Open a curl tab with global scope")
+      map("sc", curl.create_scoped_collection, "Create or open a collection with a name from user input")
+      map("gc", curl.create_global_collection, "Create or open a global collection with a name from user input")
+      map("f", curl.pick_scoped_collection, "Choose a scoped collection and open it")
+    end,
   },
   { import = 'custom.plugins' },
 }, {
