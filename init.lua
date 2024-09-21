@@ -19,6 +19,7 @@ vim.opt.breakindent = true
 -- Save undo history
 vim.opt.undofile = true
 
+vim.opt.termbidi = true
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
@@ -79,6 +80,9 @@ vim.keymap.set('n', '<C-up>', '<C-w>+', { desc = 'resize up' })
 
 vim.keymap.set('n', '<c-d>', '<c-d>zz')
 vim.keymap.set('n', '<c-u>', '<c-u>zz')
+
+vim.keymap.set('n', 'n', 'nzz')
+vim.keymap.set('n', 'N', 'Nzz')
 
 vim.keymap.set('n', '<leader>pe', vim.cmd.Ex, { desc = 'opens [E]xplorer' })
 
@@ -230,7 +234,10 @@ require('lazy').setup({
           path_display = { "smart" },
           file_ignore_patterns = {
             'node_modules',
+            'bin',
+            'obj',
             '%.png',
+            '%.jpg',
             '%.jpg',
           },
         },
